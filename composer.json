@@ -1,0 +1,17 @@
+{
+  "name": "drupal/oauth2_jwt_sso",
+  "type": "drupal-module",
+  "description": "oauth2_jwt_sso",
+  "keywords": ["Drupal"],
+  "minimum-stability": "dev",
+  "require": {
+    "league/oauth2-client": "2.2.*",
+    "lcobucci/jwt": "^3.2"
+  },
+  "authors": [
+    {
+      "name": "Yuki Cheung (alan_blake)",
+      "email": "iam@sizheng.org"
+    }
+  ]
+}

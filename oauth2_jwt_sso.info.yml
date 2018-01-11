@@ -1,0 +1,7 @@
+name: Oauth2 Jwt SSO
+type: module
+description: 'An Oauth2 JWT Single Sign On module.'
+core: 8.x
+package: Authentication
+dependencies:
+  - drupal:system (>=8.4)

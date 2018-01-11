@@ -1,0 +1,18 @@
+oauth2_jwt_sso.settings:
+  path: '/admin/config/people/oauth2_jwt_sso'
+  defaults:
+     _form: '\Drupal\oauth2_jwt_sso\Form\Oauth2JwtSSOSettingsForm'
+     _title: 'Oauth2 Jwt SSO Settings'
+  requirements:
+     _permission: 'administer oauth2_jwt_sso entities'
+  options:
+     _admin_route: TRUE
+oauth2_jwt_sso.auth_code_login:
+  path: '/user/login/remote'
+  defaults:
+     _controller: '\Drupal\oauth2_jwt_sso\Controller\Oauth2JwtSSOController::authcodeLogin'
+     _title: ''
+  requirements:
+    _access: 'TRUE'
+  options:
+     no_cache: TRUE
