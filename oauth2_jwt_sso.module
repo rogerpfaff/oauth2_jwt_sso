@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\oauth2_jwt_sso\Authentication\Provider\Oauth2JwtSSOProvider;
+use Drupal\oauth2_jwt_sso\Authentication\Provider\OAuth2JwtSSOProvider;
 use Drupal\user\Entity\User;
 use Lcobucci\JWT\Parser;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -29,7 +29,7 @@ function sso_user_login_form_validateRole(array &$form, FormStateInterface $form
     $form_state->getFormObject()->validateAuthentication($form, $form_state);
   }
   else {
-    $provider = new Oauth2JwtSSOProvider($config);
+    $provider = new OAuth2JwtSSOProvider($config);
     try {
       $accessToken = $provider->getAccessToken('password', [
         'username' => $inputUser,
