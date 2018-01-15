@@ -1,4 +1,4 @@
-name: OAuth2 Jwt SSO
+name: OAuth2 JWT SSO
 type: module
 description: 'Provides OAuth2 JWT Single Sign On.'
 core: 8.x

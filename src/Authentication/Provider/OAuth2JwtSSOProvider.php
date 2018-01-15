@@ -101,7 +101,7 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
           return $account;
         }
         catch (\Exception $e) {
-          watchdog_exception('OAuth2 Jwt SSO', $e);
+          watchdog_exception('OAuth2 JWT SSO', $e);
 
           return [];
         }
@@ -109,7 +109,7 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
       }
     }
     else {
-      \Drupal::logger('OAuth2 Jwt SSO')->warning('Invalidate jwt Token.');
+      \Drupal::logger('OAuth2 JWT SSO')->warning('Invalidate JWT Token.');
 
       return [];
     }

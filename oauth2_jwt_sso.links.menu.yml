@@ -1,5 +1,5 @@
 oauth2_jwt_sso.admin.config.people.settings:
-  title: OAuth2 Jwt SSO
-  description: 'Configure the OAuth2 Jwt SSO settings.'
+  title: OAuth2 JWT SSO
+  description: 'Configure the OAuth2 JWT SSO settings.'
   route_name: oauth2_jwt_sso.settings
   parent: user.admin_index

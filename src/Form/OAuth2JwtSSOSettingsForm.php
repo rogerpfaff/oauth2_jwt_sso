@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Define OAuth2 Jwt SSO Settings Form.
+ * Define OAuth2 JWT SSO Settings Form.
  *
  * @package Drupal\oauth2_jwt_sso\Form
  */

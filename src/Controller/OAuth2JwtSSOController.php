@@ -63,7 +63,7 @@ class OAuth2JwtSSOController extends ControllerBase {
         }
       }
       catch (IdentityProviderException $e) {
-        watchdog_exception('OAuth2 Jwt SSO', $e, $e->getMessage(), [], E_ERROR);
+        watchdog_exception('OAuth2 JWT SSO', $e, $e->getMessage(), [], E_ERROR);
         throw new AccessDeniedHttpException($e->getMessage());
       }
     }
