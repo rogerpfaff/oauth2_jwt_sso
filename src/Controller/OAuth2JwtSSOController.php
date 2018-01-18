@@ -15,7 +15,7 @@ class OAuth2JwtSSOController extends ControllerBase {
 
   function authcodeLogin(Request $request) {
     $provider = new OAuth2JwtSSOProvider(\Drupal::configFactory(), [
-      'redirectUri' => $request->getScheme() . '://' . $request->getHost() . '/user/login/remote',
+      'redirectUri' => $GLOBALS['base_url'] . '/user/login/remote',
     ]);
     $code = $request->get('code');
     $state = $request->get('state');
