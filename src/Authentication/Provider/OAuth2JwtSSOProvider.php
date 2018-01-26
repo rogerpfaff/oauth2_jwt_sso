@@ -64,7 +64,13 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
   }
 
   public function getDefaultScopes() {
-    // TODO: Implement getDefaultScopes() method.
+    if($this->configFactory->get('oauth2_jwt_sso.settings')->get('roles_remote_login')){
+      return array_values($this->configFactory->get('oauth2_jwt_sso.settings')->get('roles_remote_login'));
+    }
+  }
+
+  protected function getScopeSeparator(){
+    return " ";
   }
 
   public function applies(Request $request) {

@@ -48,8 +48,8 @@ class OAuth2JwtSSOController extends ControllerBase {
           else {
             $user = User::create([
               'name' => $username,
-              'mail' => 'test@test.com',
-              'pass' => '',
+              'mail' => $username. '@example.com',
+              'pass' => NULL,
               'status' => 1,
             ]);
             $user->save();
