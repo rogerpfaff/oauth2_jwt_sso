@@ -5,4 +5,4 @@ core: 8.x
 package: Authentication
 configure: oauth2_jwt_sso.settings
 dependencies:
-  - drupal:system (>=8.4)
+  - drupal:system (>=8.3.7)
