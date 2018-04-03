@@ -29,38 +29,15 @@ function sso_user_login_form_validateRole(array &$form, FormStateInterface $form
     $form_state->getFormObject()->validateAuthentication($form, $form_state);
   }
   else {
-    $provider = new OAuth2JwtSSOProvider($config);
+    $provider = new OAuth2JwtSSOProvider($config, \Drupal::request()->getSession());
     try {
       $accessToken = $provider->getAccessToken('password', [
         'username' => $inputUser,
         'password' => $inputPwd,
       ]);
-      $token = $accessToken->getToken();
-      if ($provider->verifyToken($token)) {
-        $token = (new Parser())->parse($token);
-        $username = $token->getClaim('username');
-        if (user_load_by_name($username)) {
-          if ($config->get('user.flood')->get('uid_only')) {
-            $identifier = user_load_by_name($username)->id();
-          }
-          else {
-            $identifier = user_load_by_name($username)->id() . '-' . \Drupal::request()
-                ->getClientIp();
-          }
-          $form_state->set('flood_control_user_identifier', $identifier);
-          $form_state->set('uid', user_load_by_name($username)->id());
-        }
-        else {
-          $user = User::create([
-            'name' => $username,
-            'mail' => 'test@test.com',
-            'pass' => '',
-            'status' => 1,
-          ]);
-          $user->save();
-          $form_state->set('uid', $user->id());
-          $form_state->set('flood_control_user_identifier', $user->id());
-        }
+      if($user = $provider->createUser($accessToken)) {
+        $form_state->set('uid', $user->id());
+        $form_state->set('flood_control_user_identifier', $user->id());
       }
       else {
         $form_state->setErrorByName('pass', 'Invalidate jwt Token.');

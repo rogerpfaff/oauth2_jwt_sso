@@ -2,19 +2,56 @@
 
 namespace Drupal\oauth2_jwt_sso\Controller;
 
-use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Routing\TrustedRedirectResponse;
-use Drupal\oauth2_jwt_sso\Authentication\Provider\OAuth2JwtSSOProvider;
-use Drupal\user\Entity\User;
 use Lcobucci\JWT\Parser;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Drupal\user\Entity\User;
+use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Routing\TrustedRedirectResponse;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Drupal\oauth2_jwt_sso\Authentication\Provider\OAuth2JwtSSOProvider;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class OAuth2JwtSSOController extends ControllerBase {
+class OAuth2JwtSSOController extends ControllerBase implements ContainerInjectionInterface{
+
+  /**
+   * The configuration object factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
+   */
+  protected $session;
+
+  /**
+   * Constructs a OAuth2JwtSSOController object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration object factory.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, SessionInterface $session) {
+    $this->configFactory = $config_factory;
+    $this->session = $session;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('session')
+    );
+  }
 
   function authcodeLogin(Request $request) {
-    $provider = new OAuth2JwtSSOProvider(\Drupal::configFactory(), [
+    $provider = new OAuth2JwtSSOProvider($this->configFactory, $request->getSession(), [
       'redirectUri' => $GLOBALS['base_url'] . '/user/login/remote',
     ]);
     $code = $request->get('code');
@@ -35,28 +72,9 @@ class OAuth2JwtSSOController extends ControllerBase {
     else {
       try {
         $accessToken = $provider->getAccessToken('authorization_code', ['code' => $code]);
-        $token = $accessToken->getToken();
-        if ($provider->verifyToken($token)) {
-          $token = (new Parser())->parse($token);
-          $username = $token->getClaim('username');
-          if (user_load_by_name($username)) {
-            $user = user_load_by_name($username);
-            user_login_finalize($user);
-
-            return $this->redirect('<front>');
-          }
-          else {
-            $user = User::create([
-              'name' => $username,
-              'mail' => $username. '@example.com',
-              'pass' => NULL,
-              'status' => 1,
-            ]);
-            $user->save();
-            user_login_finalize($user);
-
-            return $this->redirect('<front>');
-          }
+        if($user = $provider->createUser($accessToken)) {
+          user_login_finalize($user);
+          return $this->redirect('<front>');
         }
         else {
           throw new AccessDeniedHttpException('Invalid Token');

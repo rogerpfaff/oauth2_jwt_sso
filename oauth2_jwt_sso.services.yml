@@ -1,7 +1,9 @@
 services:
   oauth2_jwt_sso.authentication.auth:
     class: Drupal\oauth2_jwt_sso\Authentication\Provider\OAuth2JwtSSOProvider
-    arguments: ['@config.factory']
+    arguments:
+      - '@config.factory'
+      - '@session'
     tags:
       - { name: authentication_provider, provider_id: 'oauth2_jwt_sso_auth', priority: 100 }
   oauth2_jwt_sso.page_cache_request_policy.disallow_oauth_jwt_sso_requests:

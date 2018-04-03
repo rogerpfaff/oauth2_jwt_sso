@@ -15,6 +15,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProviderInterface {
 
@@ -28,18 +29,25 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
   protected $configFactory;
 
   /**
+   * @var \Symfony\Component\HttpFoundation\Session\SessionInterface
+   */
+  protected $session;
+
+  /**
    * OAuth2JwtSSOProvider constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   * @param \Symfony\Component\HttpFoundation\Session\SessionInterface $session
    * @param array $options
    * @param array $collaborators
    */
-  public function __construct(ConfigFactoryInterface $configFactory, array $options = [], array $collaborators = []) {
+  public function __construct(ConfigFactoryInterface $configFactory, SessionInterface $session, array $options = [], array $collaborators = []) {
     $this->configFactory = $configFactory;
     $options['clientId'] = $this->configFactory->get('oauth2_jwt_sso.settings')
       ->get('client_id');
     $options['clientSecret'] = $this->configFactory->get('oauth2_jwt_sso.settings')
       ->get('client_secret');
+    $this->session = $session;
     parent::__construct($options, $collaborators);
   }
 
@@ -87,7 +95,8 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
     $signer = new Sha256();
     $keychain = new Keychain();
     $auth_header = trim($request->headers->get('Authorization', '', TRUE));
-    $token = (new Parser())->parse(substr($auth_header, 7));
+    $token_str = substr($auth_header, 7);
+    $token = (new Parser())->parse($token_str);
     $public_key = $this->configFactory->get('oauth2_jwt_sso.settings')
       ->get('auth_public_key');
     $validateData = new ValidationData();
@@ -97,13 +106,14 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
       $username = $token->getClaim('username');
       $account = user_load_by_name($username);
       if ($account) {
+        $this->session->set('sso-token', $token_str);
         return $account;
       }
       else {
         try {
           $account = User::create(['name' => $username, 'status' => 1]);
           $account->save();
-
+          $this->session->set('sso-token', $token_str);
           return $account;
         }
         catch (\Exception $e) {
@@ -133,6 +143,29 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
       ->alter('SSO_verify_token_alter', $custom_verify, $token_claims);
 
     return ($token->verify($signer, $keychain->getPublicKey($public_key)) && $custom_verify);
+  }
+
+  public function createUser(AccessToken $access_token){
+    $token_str = $access_token->getToken();
+    if($this->verifyToken($token_str)){
+      $token = (new Parser())->parse($token_str);
+      $username = $token->getClaim('username');
+      if (user_load_by_name($username)) {
+        $user = user_load_by_name($username);
+      }
+      else{
+        $user = User::create([
+          'name' => $username,
+          'mail' => $username . '@' . $username . '.com',
+          'pass' => NULL,
+          'status' => 1,
+        ]);
+        $user->save();
+      }
+      $this->session->set('sso-token', $token_str);
+      return $user;
+    }
+    return False;
   }
 
   /**
