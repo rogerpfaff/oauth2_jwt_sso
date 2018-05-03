@@ -51,8 +51,12 @@ class OAuth2JwtSSOController extends ControllerBase implements ContainerInjectio
   }
 
   function authcodeLogin(Request $request) {
+    $remote_login_roles = $this->configFactory
+      ->get('oauth2_jwt_sso.settings')
+      ->get('roles_remote_login');
     $provider = new OAuth2JwtSSOProvider($this->configFactory, $request->getSession(), [
       'redirectUri' => $GLOBALS['base_url'] . '/user/login/remote',
+      'scope' => implode(' ', $remote_login_roles),
     ]);
     $code = $request->get('code');
     $state = $request->get('state');

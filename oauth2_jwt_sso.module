@@ -34,6 +34,7 @@ function sso_user_login_form_validateRole(array &$form, FormStateInterface $form
       $accessToken = $provider->getAccessToken('password', [
         'username' => $inputUser,
         'password' => $inputPwd,
+        'scope' => implode(' ', $remote_login_roles),
       ]);
       if($user = $provider->createUser($accessToken)) {
         $form_state->set('uid', $user->id());

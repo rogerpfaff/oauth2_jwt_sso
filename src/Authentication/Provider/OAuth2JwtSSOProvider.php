@@ -150,6 +150,7 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
     if($this->verifyToken($token_str)){
       $token = (new Parser())->parse($token_str);
       $username = $token->getClaim('username');
+      $roles = $token->getClaim('scopes');
       if (user_load_by_name($username)) {
         $user = user_load_by_name($username);
       }
@@ -160,8 +161,14 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
           'pass' => NULL,
           'status' => 1,
         ]);
+        foreach($roles as $role) {
+          if ($role != 'authenticated') {
+            $user->addRole($role);
+          }
+        }
         $user->save();
       }
+
       $this->session->set('sso-token', $token_str);
       return $user;
     }
