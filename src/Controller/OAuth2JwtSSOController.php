@@ -74,20 +74,15 @@ class OAuth2JwtSSOController extends ControllerBase implements ContainerInjectio
       throw new AccessDeniedHttpException('Invalid State');
     }
     else {
-      try {
         $accessToken = $provider->getAccessToken('authorization_code', ['code' => $code]);
-        if($user = $provider->createUser($accessToken)) {
+        $token = (new Parser())->parse($accessToken->getToken());
+        if ($provider->verifyToken($token) && $user = $provider->tokenAuthUser($token)) {
           user_login_finalize($user);
           return $this->redirect('<front>');
         }
         else {
           throw new AccessDeniedHttpException('Invalid Token');
         }
-      }
-      catch (IdentityProviderException $e) {
-        watchdog_exception('OAuth2 JWT SSO', $e, $e->getMessage(), [], E_ERROR);
-        throw new AccessDeniedHttpException($e->getMessage());
-      }
     }
   }
 

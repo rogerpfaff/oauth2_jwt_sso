@@ -36,7 +36,8 @@ function sso_user_login_form_validateRole(array &$form, FormStateInterface $form
         'password' => $inputPwd,
         'scope' => implode(' ', $remote_login_roles),
       ]);
-      if($user = $provider->createUser($accessToken)) {
+      $token = (new Parser())->parse($accessToken->getToken());
+      if ($provider->verifyToken($token) && $user = $provider->tokenAuthUser($token)) {
         $form_state->set('uid', $user->id());
         $form_state->set('flood_control_user_identifier', $user->id());
       }
