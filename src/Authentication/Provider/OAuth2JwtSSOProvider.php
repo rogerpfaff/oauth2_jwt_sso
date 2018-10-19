@@ -138,7 +138,6 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
   public function authenticate(Request $request) {
     $auth_header = trim($request->headers->get('Authorization', '', TRUE));
     try{
-      if (strpos($auth_header, 'Bearer ')) {
         $token_str = substr($auth_header, 7);
         $token = (new Parser())->parse($token_str);
         if ($this->verifyToken($token)) {
@@ -154,13 +153,10 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
           return $account;
         }
         throw new \Exception("The token is invalid.");
-      }
-      throw new \InvalidArgumentException("The client has not transmitted the token in the request.");
     }catch (\Exception $e){
       watchdog_exception("OAuth2 JWT SSO",$e,$e->getMessage());
       return null;
     }
-
   }
 
   /**
@@ -179,13 +175,10 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
    * @return bool
    */
   public function verifyToken(Token $token){
-    $client_id = $this->configFactory->get('oauth2_jwt_sso.settings')
-      ->get('client_id');
     $public_key = $this->configFactory->get('oauth2_jwt_sso.settings')
       ->get('auth_public_key');
     $signer = new Sha256();
     $validateData = new ValidationData();
-    $validateData->setAudience($client_id);
     $validate_signature = $token->verify($signer, $public_key);
     $validate_token = $token->validate($validateData);
     $token_claims = $token->getClaims();
