@@ -152,7 +152,7 @@ class OAuth2JwtSSOProvider extends AbstractProvider implements OAuth2JwtSSOProvi
           $this->session->set('sso-token', $token_str);
           return $account;
         }
-        throw new \Exception("The token is invalid.");
+        throw new \Exception("The token is invalid： ". $token_str);
     }catch (\Exception $e){
       watchdog_exception("OAuth2 JWT SSO",$e,$e->getMessage());
       return null;
