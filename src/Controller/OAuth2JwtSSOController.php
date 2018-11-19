@@ -78,6 +78,7 @@ class OAuth2JwtSSOController extends ControllerBase implements ContainerInjectio
         $token = (new Parser())->parse($accessToken->getToken());
         if ($provider->verifyToken($token) && $user = $provider->tokenAuthUser($token)) {
           user_login_finalize($user);
+          $this->session->set('sso-token', $accessToken->getToken());
           return $this->redirect('<front>');
         }
         else {

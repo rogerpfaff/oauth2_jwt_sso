@@ -40,6 +40,8 @@ function sso_user_login_form_validateRole(array &$form, FormStateInterface $form
       if ($provider->verifyToken($token) && $user = $provider->tokenAuthUser($token)) {
         $form_state->set('uid', $user->id());
         $form_state->set('flood_control_user_identifier', $user->id());
+        $session = \Drupal::request()->getSession();
+        $session->set('sso-token', $accessToken->getToken());
       }
       else {
         $form_state->setErrorByName('pass', 'Invalidate jwt Token.');
