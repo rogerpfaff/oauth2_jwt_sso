@@ -10,6 +10,10 @@ oauth2_jwt_sso.settings:
       type: uri
       label: 'Access Token URL'
       description: ''
+    logout_url:
+      type: uri
+      label: 'Logout URL'
+      description: ''
     client_id:
       type: string
       label: 'Client ID'

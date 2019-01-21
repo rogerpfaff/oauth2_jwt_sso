@@ -3,7 +3,6 @@
 namespace Drupal\oauth2_jwt_sso\Controller;
 
 use Lcobucci\JWT\Parser;
-use Drupal\user\Entity\User;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -11,7 +10,6 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Drupal\oauth2_jwt_sso\Authentication\Provider\OAuth2JwtSSOProvider;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -85,6 +83,14 @@ class OAuth2JwtSSOController extends ControllerBase implements ContainerInjectio
           throw new AccessDeniedHttpException('Invalid Token');
         }
     }
+  }
+
+  function logout(){
+    $authserver_logout_url = $this->configFactory
+      ->get('oauth2_jwt_sso.settings')
+      ->get('logout_url');
+    user_logout();
+    return ($authserver_logout_url) ? new TrustedRedirectResponse($authserver_logout_url) : $this->redirect('<front>');
   }
 
 }

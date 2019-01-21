@@ -47,6 +47,12 @@ class OAuth2JwtSSOSettingsForm extends ConfigFormBase {
       '#default_value' => $oauth2_jwt_sso_config->get('access_token_url'),
       '#required' => TRUE,
     ];
+    $form['logout_url'] = [
+      '#type' => 'url',
+      '#title' => $this->t('Logout URL'),
+      '#default_value' => $oauth2_jwt_sso_config->get('logout_url'),
+      '#required' => TRUE,
+    ];
     $form['client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Client ID'),
@@ -89,6 +95,7 @@ class OAuth2JwtSSOSettingsForm extends ConfigFormBase {
     $this->config('oauth2_jwt_sso.settings')
       ->set('authorization_url', $values['authorization_url'])
       ->set('access_token_url', $values['access_token_url'])
+      ->set('logout_url', $values['logout_url'])
       ->set('client_id', $values['client_id'])
       ->set('client_secret', $values['client_secret'])
       ->set('auth_public_key', $values['auth_public_key'])

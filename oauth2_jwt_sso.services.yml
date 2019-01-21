@@ -11,3 +11,7 @@ services:
     public: false
     tag:
       - { name: page_cache_request_policy }
+  oauth2_jwt_sso.route_subscriber:
+    class: Drupal\oauth2_jwt_sso\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
