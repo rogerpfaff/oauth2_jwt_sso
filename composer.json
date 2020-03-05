@@ -5,7 +5,7 @@
     "keywords": ["Drupal,"],
     "minimum-stability": "dev",
     "require": {
-        "league/oauth2-client": "2.2.*",
+        "league/oauth2-client": "^2.2",
         "lcobucci/jwt": "^3.2"
     }
 }
